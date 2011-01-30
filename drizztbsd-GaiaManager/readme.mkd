@@ -1,0 +1,52 @@
+Gaia Manager v1.0
+=================
+
+FEATURES
+--------
+
+Gaia Manager has the next features:
+
+- Supports up to 512 items from two USB devices, internal hdd and bluray
+
+- Ability to copy games from bdvd to hdd0 or USB's, from hdd0 to USB's or from USB's to hdd0. It is done asking to you the destination device. It use uses asynchronous reading and writing for fast copy.
+
+- Special support for big files in FAT: it splits files >= 4GB using .666xx fragments \(if the file is name.ext, the file splits as name.ext.66600, name.ext.66601,...\). This file is not bootable and it is marked using '\_' as folder prefix. The file is joining when you copy it to hdd0 device
+
+- Automatically finds the path of the games and asks to you about it. In other case, if the Open Manager is installed in the hdd0 creates one. You can change it pressing L2+START later.
+
+- Including checking game option \(pressing R3\). It displays information about the files, size, splits or big files, if it have one.
+
+- Support for Homebrew: you can creates "homebrew" folder in root USB FAT device and put here others folders with an EBOOT.BIN \(.self format\) and one ICON0.PNG. Also you can use the internal hdd0. Homebrew is launched directly and receive the path in argv\[0\].
+
+- FTP support to upload homebrew: open\_manager uses "GAIA01985" as user, by default. I recommend flashfxp to use it, because FTP support is not very good...
+
+NOTE: Gaia Manager works with Hermes payload update. So,if you return from game list, apps\_home can launch games without one disc \(some games don't work without any disc\), but if you return from Homebrew, apps\_home works from usb000
+
+NOTE2: You can modify the program as you want, but please, make public the source code
+
+**Source Code** on [GitHub](http://github.com/drizztbsd/GaiaManager)
+
+**[Home Page](http://drizztbsd.github.com/GaiaManager/)**
+
+
+Compilation howto
+-----------------
+
+I use **git submodules**, so you need to do
+
+		git submodule update --init
+
+after the first clone (and when I update a submodule).
+
+You can change the games directory compiling with
+
+		make WITH_GAMES_DIR=XXX
+
+v1.0 ChangeLog
+--------------
+
+That version is based on the Jurai2 **Sexy Manager** and **Open Manager** with _klutsh_ graphics and some my _drizzt_ patches.
+
+It also supports the aggressive Hermes v3 patching.
+
+It uses **GAIA01985** as folder name and product name, and it uses **BDRIPS** for games and **BDCOVERS** for covers

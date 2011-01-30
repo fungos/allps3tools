@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+    "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">
+<html xmlns:svg='http://www.w3.org/2000/svg' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+<head><meta content='application/xhtml+xml;charset=utf-8' http-equiv='Content-type' /><title>Gaia Manager v1.0</title></head>
+<body>
+<h1 id='gaia_manager_v10'>Gaia Manager v1.0</h1>
+
+<h2 id='features'>FEATURES</h2>
+
+<p>Gaia Manager has the next features:</p>
+
+<ul>
+<li>
+<p>Supports up to 512 items from two USB devices, internal hdd and bluray</p>
+</li>
+
+<li>
+<p>Ability to copy games from bdvd to hdd0 or USB&#8217;s, from hdd0 to USB&#8217;s or from USB&#8217;s to hdd0. It is done asking to you the destination device. It use uses asynchronous reading and writing for fast copy.</p>
+</li>
+
+<li>
+<p>Special support for big files in FAT: it splits files &gt;= 4GB using .666xx fragments (if the file is name.ext, the file splits as name.ext.66600, name.ext.66601,&#8230;). This file is not bootable and it is marked using &#8216;_&#8217; as folder prefix. The file is joining when you copy it to hdd0 device</p>
+</li>
+
+<li>
+<p>Automatically finds the path of the games and asks to you about it. In other case, if the Open Manager is installed in the hdd0 creates one. You can change it pressing L2+START later.</p>
+</li>
+
+<li>
+<p>Including checking game option (pressing R3). It displays information about the files, size, splits or big files, if it have one.</p>
+</li>
+
+<li>
+<p>Support for Homebrew: you can creates &#8220;homebrew&#8221; folder in root USB FAT device and put here others folders with an EBOOT.BIN (.self format) and one ICON0.PNG. Also you can use the internal hdd0. Homebrew is launched directly and receive the path in argv[0].</p>
+</li>
+
+<li>
+<p>FTP support to upload homebrew: open_manager uses &#8220;GAIA01985&#8221; as user, by default. I recommend flashfxp to use it, because FTP support is not very good&#8230;</p>
+</li>
+</ul>
+
+<p>NOTE: Gaia Manager works with Hermes payload update. So,if you return from game list, apps_home can launch games without one disc (some games don&#8217;t work without any disc), but if you return from Homebrew, apps_home works from usb000</p>
+
+<p>NOTE2: You can modify the program as you want, but please, make public the source code</p>
+
+<p><strong>Source Code</strong> on <a href='http://github.com/drizztbsd/GaiaManager'>GitHub</a></p>
+
+<p><strong><a href='http://drizztbsd.github.com/GaiaManager/'>Home Page</a></strong></p>
+
+<h2 id='compilation_howto'>Compilation howto</h2>
+
+<p>I use <strong>git submodules</strong>, so you need to do</p>
+
+<pre><code>	git submodule update --init</code></pre>
+
+<p>after the first clone (and when I update a submodule).</p>
+
+<p>You can change the games directory compiling with</p>
+
+<pre><code>	make WITH_GAMES_DIR=XXX</code></pre>
+
+<h2 id='v10_changelog'>v1.0 ChangeLog</h2>
+
+<p>That version is based on the Jurai2 <strong>Sexy Manager</strong> and <strong>Open Manager</strong> with <em>klutsh</em> graphics and some my <em>drizzt</em> patches.</p>
+
+<p>It also supports the aggressive Hermes v3 patching.</p>
+
+<p>It uses <strong>GAIA01985</strong> as folder name and product name, and it uses <strong>BDRIPS</strong> for games and <strong>BDCOVERS</strong> for covers</p>
+</body></html>

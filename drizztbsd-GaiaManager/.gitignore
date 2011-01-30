@@ -1,0 +1,20 @@
+# Target Files
+EBOOT.BIN
+*.pkg
+
+# Generated files
+at3plus.c
+waveout.c
+*.[fv]po
+*.self
+*.elf
+*~
+objs/
+readme.aux
+readme.log
+readme.out
+readme.tex
+
+# Copyrighted files
+at3plus.h
+waveout.h
