@@ -1,0 +1,61 @@
+This is a GameOS application, which reads patch data from
+cofiguration files, applies them to LV2 and exits.
+
+Configuration file is called "patch.txt" and it is searched
+in following directories (in specified order):
+
+* /dev_usb000/lv2/
+* /dev_usb001/lv2/
+* /dev_usb002/lv2/
+* /dev_usb003/lv2/
+* /dev_usb004/lv2/
+* /dev_usb005/lv2/
+* /dev_usb006/lv2/
+* /dev_usb007/lv2/
+* /dev_cf/lv2/
+* /dev_sd/lv2/
+* /dev_ms/lv2/
+* /dev_hdd0/game/LV2000000/USRDIR/
+
+If a patch.txt is found, the patcher reads it and executes
+patch instructions from it. Only the first file is processed.
+
+Patch instruction has the following format:
+
+  <address>: [@[x][b]] { imm32 | imm64 | filename | "go" } [# comment]
+
+"address" is self-explainationary - it specifies the pointer
+to the memory to be patched. Base offset is 0x8000000000000000,
+so "address" = 12345 refers to 0x8000000000012345.
+
+[@[x][b]] is the flags field. Flag "x" executes the payload after
+loading it from the file, flag "b" backs up the memory before
+payload execution to restore it later.
+
+imm32 and imm64 are new memory values (32 and 64 bits).
+
+If you specify the filename, patcher will search it, then load
+it into memory. If the address is zero, a new memory block
+will be allocated within lv2 address space.
+
+"go" just executes the memory, specified by the pointer.
+
+All values are hexademical (lower or upper case) and must
+be specified without spaces.
+
+Example:
+
+# PL3:
+ef48: payload.bin
+# Segment 0:
+24e44: 38600000 # patch_func6
+55dc4: 38600000 # lv2open: patch_func8_offset1
+55f28: 60000000 # lv2open: patch_func8_offset2
+79d80: 3880000090830000 # patch_func4 + patch_func4_offset
+79d88: 4E800020 # cont'd
+7af7c: 60000000 # patch_func9_offset
+c1dd0: 38600000 # patch_func7
+2b3298: 4BD5C050 # hook_open (patch_func3 + patch_func3_offset)
+# Segment 1:
+346688: 800000000000f2dc # syscall_map_open_desc
+

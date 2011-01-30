@@ -1,0 +1,154 @@
+diff --git a/firmware_symbols.h.S b/firmware_symbols.h.S
+index 5000adf..bc857e4 100644
+--- a/firmware_symbols.h.S
++++ b/firmware_symbols.h.S
+@@ -16,7 +16,19 @@
+ #ifndef __FIRMWARE_SYMBOLS_H_S__
+ #define __FIRMWARE_SYMBOLS_H_S__
+ 
+-#ifdef FIRMWARE_3_41
++#ifdef FIRMWARE_3_55
++#define MEM_BASE2		0xef48
++#define patch_func3 		0x2a3f24
++#define patch_func3_offset	0
++#define strncmp			0x4e6d8
++#define strcpy			0x4e684
++#define pathdup_from_user	0x18dc68
++#define open_mapping_table_ext	0x7fff00
++#define strlen			0x4e6ac
++#define alloc			0x60b78
++#define free			0x60fb4
++
++#elif defined(FIRMWARE_3_41)
+ 
+ /* Common Symbols */
+ #define memcpy 			0x7c01c
+diff --git a/map_open_path.h.S b/map_open_path.h.S
+index 3780f27..c7806d6 100644
+--- a/map_open_path.h.S
++++ b/map_open_path.h.S
+@@ -115,7 +115,11 @@ l_map_open_unset:
+ 
+ 	// check the map table
+ 	MEM_BASE (%r31)
+-	LOAD_LABEL2 (%r26, %r31, open_mapping_table)
++#ifdef __PL3_INPLACE_LV2_PATCH__
++	LOAD_ABS (%r26, %r31, open_mapping_table_ext)
++#else
++	LOAD_LABEL2 (%r26, %r26, open_mapping_table)
++#endif
+ 	ld	%r3, 0(%r26)
+ 	cmpldi	%r3, 0
+ 	bne	l_map_open_no_alloc
+@@ -269,11 +273,12 @@ l_syscall_map_open_call:
+ 	ld	%r3, 0xa0(%r1)			// old path
+ 	ld	%r4, 0xb0(%r1)			// new path
+ 	// Call map_open_path
+-	MEM_BASE (%r6)
+-	LOAD_LABEL2 (%r6, %r6, map_open_path_ptr)
+-	ld	%r6, 0(%r6)
+-	mtctr	%r6
+-	bctrl
++//	MEM_BASE (%r6)
++//	LOAD_LABEL2 (%r6, %r6, map_open_path_ptr)
++	//ld	%r6, 0(%r6)
++	//mtctr	%r6
++	//bctrl
++	bl map_open_path_start
+ 	mr	%r26, %r3
+ 	ld	%r3, 0xa0(%r1)
+ 	li	%r4, 0x27
+diff --git a/open_hook.h.S b/open_hook.h.S
+index cac2924..d8455f9 100644
+--- a/open_hook.h.S
++++ b/open_hook.h.S
+@@ -23,6 +23,7 @@
+  * }
+  */
+ 	.set	MAX_TABLE_ENTRIES, 16
++#ifndef __PL3_INPLACE_LV2_PATCH__
+ open_mapping_table:
+ 	.quad	0
+ 
+@@ -31,6 +32,10 @@ syscall_map_open_desc:
+ 
+ DEFINE_FUNC_PTR(map_open_path)
+ DEFINE_FUNC_PTR(syscall_map_open)
++#else
++syscall_map_open_desc:
++	QUAD_MEM2 (syscall_map_open_start)
++#endif
+ 
+ /**
+  * hook_open:
+@@ -57,7 +62,11 @@ hook_open:
+ 
+ 	// load the mapping_table in %r26
+ 	MEM_BASE (%r26)
++#ifdef __PL3_INPLACE_LV2_PATCH__
++	LOAD_ABS (%r26, %r26, open_mapping_table_ext)
++#else
+ 	LOAD_LABEL2 (%r26, %r26, open_mapping_table)
++#endif
+ 	ld	%r26, 0(%r26)
+ 	cmpldi	%r26, 0
+ 	beq	l_hook_open_proceed
+@@ -93,6 +102,10 @@ l_hook_open_next_table_entry:
+ 	addi	%r29, %r3, 4			// reload the new_path into %r29
+ l_hook_open_proceed:
+ 	mr	%r3, %r29
++#ifdef __PL3_INPLACE_LV2_PATCH__
++	b       (patch_func3 + patch_func3_offset + 4)
++#else
+ 	b       ABSOLUTE_MEM2(patch_func3 + patch_func3_offset + 4)
++#endif
+ 
+ #endif /* __OPEN_HOOK_H_S__ */
+diff --git a/pl3.h.S b/pl3.h.S
+index cd125b5..09db87c 100644
+--- a/pl3.h.S
++++ b/pl3.h.S
+@@ -170,11 +170,13 @@ resident_area_start:					\
+ resident_area_end:					\
+ .org RESIDENT_AREA_OFFSET + RESIDENT_AREA_MAXSIZE
+ 
++#ifndef __PL3_INPLACE_LV2_PATCH__
+ .org 0
+ // Position 0x20 in the page
+ payload_entry:
+ 	b	payload_main
+ 
+ #include "pl3_memcpy.h.S"
++#endif
+ 
+ #endif /* __PL3_H_S__ */
+--- /dev/null   2011-01-11 17:25:10.745999850 +0300
++++ payload_inplace.S   2011-01-19 09:12:10.533935633 +0300
+@@ -0,0 +1,27 @@
++/*
++ * payload_inplace.S -- PS3 Jailbreak payload : payload for in-memory LV2 patching
++ *
++ * Copyright (C) Youness Alaoui (KaKaRoTo)
++ * Copyright (C) Aaron Lindsay (Aaron')
++ * Copyright (C) (subdub)
++ * Copyright (C) kmeaw
++ *
++ * This software is distributed under the terms of the GNU General Public
++ * License ("GPL") version 3, as published by the Free Software Foundation.
++ *
++ * This payload is a modified version of the original PSJailbreak's payload.
++ * The people behing PSJailbrak are the original authors and copyright holders
++ * of the code they wrote.
++ */
++
++#define __PL3_INPLACE_LV2_PATCH__
++#define FIRMWARE_3_55
++#include "pl3.h.S"
++
++.org 0
++RESIDENT_AREA_START()
++#include "map_open_path.h.S"
++#include "open_hook.h.S"
++.org 0x5ac
++.long 0x4bfffc9c
++.long 0xf821ff81
