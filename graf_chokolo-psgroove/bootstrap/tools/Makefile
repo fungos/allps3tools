@@ -1,0 +1,19 @@
+
+CC=gcc
+CFLAGS=-O2 -Wall
+LDFLAGS=
+
+SRC_BIN2HEX=bin2hex.c
+OBJ_BIN2HEX=$(SRC_BIN2HEX:.c=.o)
+TARGET_BIN2HEX=bin2hex
+
+all: $(TARGET_BIN2HEX)
+
+$(TARGET_BIN2HEX): $(OBJ_BIN2HEX)
+	$(CC) $(LDFLAGS) $(OBJ_BIN2HEX) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $^
+
+clean:
+	rm -f $(TARGET_BIN2HEX) $(OBJ_BIN2HEX)
